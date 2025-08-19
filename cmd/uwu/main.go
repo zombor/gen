@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"log"
@@ -10,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/zombor/uwu/cmd/uwu/tui"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 )
@@ -65,37 +66,35 @@ func main() {
 		os.Exit(1)
 	}
 
-	ctx := context.Background()
-	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer client.Close()
+	command, confirmed := tui.Run(func(send func(tea.Msg)) {
+		ctx := context.Background()
+		client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer client.Close()
 
-	model := client.GenerativeModel("gemini-2.5-flash")
+		model := client.GenerativeModel("gemini-2.5-flash")
 
-	provider := &GeminiProvider{
-		Model: model,
-	}
+		provider := &GeminiProvider{
+			Model: model,
+		}
 
-	shell := getShell()
-	command, err := provider.GenerateCommand(prompt, shell)
-	if err != nil {
-		fmt.Printf("Error generating command: %v\n", err)
-		os.Exit(1)
-	}
+		shell := getShell()
+		command, err := provider.GenerateCommand(prompt, shell)
+		if err != nil {
+			fmt.Printf("Error generating command: %v\n", err)
+			os.Exit(1)
+		}
 
-	// The model sometimes returns the command wrapped in backticks, so we remove them.
-	command = strings.Trim(command, "`")
+		// The model sometimes returns the command wrapped in backticks, so we remove them.
+		command = strings.Trim(command, "`")
 
-	fmt.Printf("Generated command: %s\n", command)
-	fmt.Print("Execute? (y/n): ")
+		send(tui.CommandGeneratedMsg(command))
+	})
 
-	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	input = strings.TrimSpace(input)
-
-	if input == "y" {
+	if confirmed {
+		shell := getShell()
 		cmd := exec.Command(shell, "-c", command)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
