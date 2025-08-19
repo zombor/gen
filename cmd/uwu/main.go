@@ -4,46 +4,20 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
 	"github.com/zombor/uwu/cmd/uwu/config"
+	"github.com/zombor/uwu/cmd/uwu/llm"
 	"github.com/zombor/uwu/cmd/uwu/tui"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/google/generative-ai-go/genai"
+	"github.com/ollama/ollama/api"
 	"google.golang.org/api/option"
 )
-
-// LLMProvider defines the interface for a language model provider.
-type LLMProvider interface {
-	GenerateCommand(prompt, shell string) (string, error)
-}
-
-// GeminiProvider is an implementation of LLMProvider for Google's Gemini.
-type GeminiProvider struct {
-	Model *genai.GenerativeModel
-}
-
-// GenerateCommand generates a command using the Gemini LLM.
-func (p *GeminiProvider) GenerateCommand(prompt, shell string) (string, error) {
-	ctx := context.Background()
-	resp, err := p.Model.GenerateContent(ctx, genai.Text(fmt.Sprintf("Given the following prompt, generate a single shell command. The command should be able to be executed on a %s machine in a %s shell. The command should be reasonable and not destructive. Return only the command, with no explanation or other text.\n\nPrompt: %s", os.Getenv("GOOS"), shell, prompt)))
-	if err != nil {
-		return "", err
-	}
-
-	if len(resp.Candidates) > 0 {
-		for _, part := range resp.Candidates[0].Content.Parts {
-			if txt, ok := part.(genai.Text); ok {
-				return string(txt), nil
-			}
-		}
-	}
-
-	return "", fmt.Errorf("no command generated")
-}
 
 func getShell() string {
 	shellPath := os.Getenv("SHELL")
@@ -60,6 +34,30 @@ func main() {
 		os.Exit(1)
 	}
 
+	var provider llm.LLMProvider
+
+	switch cfg.Provider {
+	case "gemini":
+		ctx := context.Background()
+		client, err := genai.NewClient(ctx, option.WithAPIKey(cfg.APIKey))
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer client.Close()
+		model := client.GenerativeModel(cfg.GeminiModel)
+		provider = &llm.GeminiProvider{Model: model}
+	case "ollama":
+		hostURL, err := url.Parse(cfg.Ollama.Host)
+		if err != nil {
+			log.Fatal(err)
+		}
+		client := api.NewClient(hostURL, nil)
+		provider = &llm.OllamaProvider{Client: client, Model: cfg.Ollama.Model}
+	default:
+		fmt.Printf("Unknown provider: %s\n", cfg.Provider)
+		os.Exit(1)
+	}
+
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: uwu <prompt>")
 		os.Exit(1)
@@ -68,19 +66,6 @@ func main() {
 	prompt := strings.Join(os.Args[1:], " ")
 
 	command, confirmed := tui.Run(func(send func(tea.Msg)) {
-		ctx := context.Background()
-		client, err := genai.NewClient(ctx, option.WithAPIKey(cfg.APIKey))
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer client.Close()
-
-		model := client.GenerativeModel("gemini-2.5-flash")
-
-		provider := &GeminiProvider{
-			Model: model,
-		}
-
 		shell := getShell()
 		command, err := provider.GenerateCommand(prompt, shell)
 		if err != nil {
