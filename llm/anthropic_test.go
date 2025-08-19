@@ -14,9 +14,9 @@ import (
 
 var _ = Describe("AnthropicProvider", func() {
 	var (
-		provider *llm.AnthropicProvider
+		provider           *llm.AnthropicProvider
 		mockCreateMessages func(context.Context, anthropic.MessagesRequest) (anthropic.MessagesResponse, error)
-		model string
+		model              string
 	)
 
 	BeforeEach(func() {
@@ -31,10 +31,10 @@ var _ = Describe("AnthropicProvider", func() {
 
 	Describe("GenerateCommand", func() {
 		var (
-			prompt string
-			shell string
+			prompt  string
+			shell   string
 			command string
-			err error
+			err     error
 		)
 
 		BeforeEach(func() {

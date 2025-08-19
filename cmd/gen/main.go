@@ -17,10 +17,10 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/google/generative-ai-go/genai"
-	"github.com/ollama/ollama/api"
-	opts "google.golang.org/api/option"
-	openai "github.com/sashabaranov/go-openai"
 	"github.com/liushuangls/go-anthropic"
+	"github.com/ollama/ollama/api"
+	openai "github.com/sashabaranov/go-openai"
+	opts "google.golang.org/api/option"
 )
 
 var (
@@ -89,12 +89,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	command, confirmed := tui.Run(func(send func(tea.Msg)) {
+	command, confirmed, err := tui.Run(func(send func(tea.Msg)) {
 		shell := getShell()
 		command, err := provider.GenerateCommand(prompt, shell)
 		if err != nil {
-			fmt.Printf("Error generating command: %v\n", err)
-			os.Exit(1)
+			send(tui.ErrMsg{Err: err})
+			return
 		}
 
 		// The model sometimes returns the command wrapped in backticks, so we remove them.
@@ -102,6 +102,11 @@ func main() {
 
 		send(tui.CommandGeneratedMsg(command))
 	})
+
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		os.Exit(1)
+	}
 
 	if confirmed {
 		shell := getShell()

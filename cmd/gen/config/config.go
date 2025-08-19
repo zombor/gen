@@ -11,10 +11,10 @@ import (
 
 // Config holds the configuration for the application.
 type Config struct {
-	Provider string
-	Gemini   GeminiConfig
-	OpenAI   OpenAIConfig
-	Ollama   OllamaConfig
+	Provider  string
+	Gemini    GeminiConfig
+	OpenAI    OpenAIConfig
+	Ollama    OllamaConfig
 	Anthropic AnthropicConfig
 	Bedrock   BedrockConfig
 }
@@ -53,19 +53,19 @@ type BedrockConfig struct {
 func Load(version, commit, date string) (*Config, error) {
 	fs := flag.NewFlagSet("gen", flag.ExitOnError)
 	var (
-		provider       = fs.String("provider", "gemini", "LLM provider to use (gemini, openai, ollama, anthropic, or bedrock)")
-		geminiAPIKey   = fs.String("gemini-api-key", "", "Gemini API key")
-		geminiModel    = fs.String("gemini-model", "gemini-1.5-flash", "Gemini model to use")
-		openaiAPIKey   = fs.String("openai-api-key", "", "OpenAI API key")
-		openaiModel    = fs.String("openai-model", "gpt-4o", "OpenAI model to use")
-		ollamaHost     = fs.String("ollama-host", "http://localhost:11434", "Ollama host")
-		ollamaModel    = fs.String("ollama-model", "llama2", "Ollama model")
+		provider        = fs.String("provider", "gemini", "LLM provider to use (gemini, openai, ollama, anthropic, or bedrock)")
+		geminiAPIKey    = fs.String("gemini-api-key", "", "Gemini API key")
+		geminiModel     = fs.String("gemini-model", "gemini-1.5-flash", "Gemini model to use")
+		openaiAPIKey    = fs.String("openai-api-key", "", "OpenAI API key")
+		openaiModel     = fs.String("openai-model", "gpt-4o", "OpenAI model to use")
+		ollamaHost      = fs.String("ollama-host", "http://localhost:11434", "Ollama host")
+		ollamaModel     = fs.String("ollama-model", "llama2", "Ollama model")
 		anthropicAPIKey = fs.String("anthropic-api-key", "", "Anthropic API key")
 		anthropicModel  = fs.String("anthropic-model", "claude-3-opus-20240229", "Anthropic model to use")
-		bedrockModel   = fs.String("bedrock-model", "anthropic.claude-3-sonnet-20240229-v1:0", "Bedrock model to use")
-		bedrockRegion  = fs.String("bedrock-region", "us-east-1", "AWS region for Bedrock")
-		configPath     = fs.String("config", "", "path to config file")
-		showVersion    = fs.Bool("version", false, "show version")
+		bedrockModel    = fs.String("bedrock-model", "anthropic.claude-3-sonnet-20240229-v1:0", "Bedrock model to use")
+		bedrockRegion   = fs.String("bedrock-region", "us-east-1", "AWS region for Bedrock")
+		configPath      = fs.String("config", "", "path to config file")
+		showVersion     = fs.Bool("version", false, "show version")
 	)
 
 	home, err := os.UserHomeDir()

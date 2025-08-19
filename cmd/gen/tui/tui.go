@@ -1,23 +1,29 @@
 package tui
 
 import (
+	"fmt"
+
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func Run(g func(func(tea.Msg))) (string, bool) {
+type ErrMsg struct{ Err error }
+
+func (e ErrMsg) Error() string { return e.Err.Error() }
+
+func Run(g func(func(tea.Msg))) (string, bool, error) {
 	p := tea.NewProgram(NewModel())
 
 	go g(p.Send)
 
 	m, err := p.Run()
 	if err != nil {
-		return "", false
+		return "", false, err
 	}
 
 	finalModel, ok := m.(Model)
 	if !ok {
-		return "", false
+		return "", false, fmt.Errorf("could not cast model to tui.Model")
 	}
 
-	return finalModel.Command, finalModel.Confirmed
+	return finalModel.Command, finalModel.Confirmed, finalModel.Err
 }

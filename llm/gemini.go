@@ -21,7 +21,6 @@ func (p *GeminiProvider) GenerateCommand(prompt, shell string) (string, error) {
 		return "", err
 	}
 
-
 	if len(resp.Candidates) > 0 {
 		for _, part := range resp.Candidates[0].Content.Parts {
 			if txt, ok := part.(genai.Text); ok {

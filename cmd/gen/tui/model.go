@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -8,20 +10,21 @@ import (
 )
 
 type Model struct {
-	Spinner     spinner.Model
-	Loading     bool
-	Command     string
-	Confirmed   bool
-	Quitting    bool
-	Renderer    *glamour.TermRenderer
-	TextInput   textinput.Model
+	Spinner   spinner.Model
+	Loading   bool
+	Command   string
+	Confirmed bool
+	Quitting  bool
+	Renderer  *glamour.TermRenderer
+	TextInput textinput.Model
+	Err       error // New field to store error
 }
 
 func NewModel() Model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 
-ti := textinput.New()
+	ti := textinput.New()
 	ti.Focus()
 
 	r, _ := glamour.NewTermRenderer(
@@ -56,6 +59,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Command = string(msg)
 		m.TextInput.SetValue(m.Command)
 		return m, nil
+	case ErrMsg:
+		m.Err = msg.Err    // Store the error
+		return m, tea.Quit // Quit the program
 	}
 
 	m.Spinner, cmd = m.Spinner.Update(msg)
@@ -64,6 +70,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	if m.Err != nil {
+		return fmt.Sprintf("Error: %v\n", m.Err)
+	}
 	if m.Quitting {
 		return ""
 	}

@@ -13,10 +13,10 @@ import (
 
 var _ = Describe("OllamaProvider", func() {
 	var (
-		provider *llm.OllamaProvider
+		provider     *llm.OllamaProvider
 		generateFunc func(context.Context, *api.GenerateRequest, api.GenerateResponseFunc) error
 		mockResponse string
-		mockError error
+		mockError    error
 	)
 
 	BeforeEach(func() {

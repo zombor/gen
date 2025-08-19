@@ -13,23 +13,23 @@ import (
 )
 
 var _ = Describe("OpenAIProvider", func() {
-	var ( 
-		provider *llm.OpenAIProvider
+	var (
+		provider                 *llm.OpenAIProvider
 		mockCreateChatCompletion func(context.Context, openai.ChatCompletionRequest) (openai.ChatCompletionResponse, error)
 	)
 
 	BeforeEach(func() {
 		mockCreateChatCompletion = func(ctx context.Context, req openai.ChatCompletionRequest) (openai.ChatCompletionResponse, error) {
 			return openai.ChatCompletionResponse{
-				Choices: []openai.ChatCompletionChoice{
-					{
-						Message: openai.ChatCompletionMessage{
-							Content: "ls -l",
+					Choices: []openai.ChatCompletionChoice{
+						{
+							Message: openai.ChatCompletionMessage{
+								Content: "ls -l",
+							},
 						},
 					},
 				},
-			},
-			nil
+				nil
 		}
 	})
 
@@ -67,7 +67,7 @@ var _ = Describe("OpenAIProvider", func() {
 			BeforeEach(func() {
 				mockCreateChatCompletion = func(ctx context.Context, req openai.ChatCompletionRequest) (openai.ChatCompletionResponse, error) {
 					return openai.ChatCompletionResponse{},
-					nil
+						nil
 				}
 			})
 
