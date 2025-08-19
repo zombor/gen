@@ -15,6 +15,7 @@ type Config struct {
 	Gemini   GeminiConfig
 	OpenAI   OpenAIConfig
 	Ollama   OllamaConfig
+	Anthropic AnthropicConfig
 }
 
 // GeminiConfig holds the configuration for the Gemini provider.
@@ -35,17 +36,25 @@ type OllamaConfig struct {
 	Model string
 }
 
+// AnthropicConfig holds the configuration for the Anthropic provider.
+type AnthropicConfig struct {
+	APIKey string
+	Model  string
+}
+
 // Load loads the configuration from a file, environment variables, and flags.
 func Load(version, commit, date string) (*Config, error) {
 	fs := flag.NewFlagSet("gen", flag.ExitOnError)
 	var (
-		provider       = fs.String("provider", "gemini", "LLM provider to use (gemini, openai, or ollama)")
+		provider       = fs.String("provider", "gemini", "LLM provider to use (gemini, openai, ollama, or anthropic)")
 		geminiAPIKey   = fs.String("gemini-api-key", "", "Gemini API key")
 		geminiModel    = fs.String("gemini-model", "gemini-1.5-flash", "Gemini model to use")
 		openaiAPIKey   = fs.String("openai-api-key", "", "OpenAI API key")
 		openaiModel    = fs.String("openai-model", "gpt-4o", "OpenAI model to use")
 		ollamaHost     = fs.String("ollama-host", "http://localhost:11434", "Ollama host")
 		ollamaModel    = fs.String("ollama-model", "llama2", "Ollama model")
+		anthropicAPIKey = fs.String("anthropic-api-key", "", "Anthropic API key")
+		anthropicModel  = fs.String("anthropic-model", "claude-3-opus-20240229", "Anthropic model to use")
 		configPath     = fs.String("config", "", "path to config file")
 		showVersion    = fs.Bool("version", false, "show version")
 	)
@@ -83,6 +92,8 @@ func Load(version, commit, date string) (*Config, error) {
 	cfg.OpenAI.Model = *openaiModel
 	cfg.Ollama.Host = *ollamaHost
 	cfg.Ollama.Model = *ollamaModel
+	cfg.Anthropic.APIKey = *anthropicAPIKey
+	cfg.Anthropic.Model = *anthropicModel
 
 	if *showVersion {
 		fmt.Printf("gen version %s (commit: %s, built at: %s)\n", version, commit, date)
