@@ -75,6 +75,7 @@ Available flags:
 - `--ollama-host`: Ollama host URL. Default: `http://localhost:11434`.
 - `--ollama-model`: Ollama model to use. Default: `llama2`.
 - `--config`: Path to the configuration file. Default: `~/.gen/config`.
+- `--version`: Show the version and exit.
 
 ## Usage
 

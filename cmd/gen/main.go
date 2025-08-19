@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"net/url"
@@ -59,12 +60,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	if len(os.Args) < 2 {
+	prompt := strings.Join(flag.Args(), " ")
+
+	if prompt == "" {
 		fmt.Println("Usage: gen <prompt>")
 		os.Exit(1)
 	}
-
-	prompt := strings.Join(os.Args[1:], " ")
 
 	command, confirmed := tui.Run(func(send func(tea.Msg)) {
 		shell := getShell()
