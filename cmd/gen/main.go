@@ -18,7 +18,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/google/generative-ai-go/genai"
 	"github.com/ollama/ollama/api"
-	"google.golang.org/api/option"
+	opts "google.golang.org/api/option"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 var (
@@ -47,13 +48,16 @@ func main() {
 	switch cfg.Provider {
 	case "gemini":
 		ctx := context.Background()
-		client, err := genai.NewClient(ctx, option.WithAPIKey(cfg.APIKey))
+		client, err := genai.NewClient(ctx, opts.WithAPIKey(cfg.Gemini.APIKey))
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer client.Close()
-		model := client.GenerativeModel(cfg.GeminiModel)
+		model := client.GenerativeModel(cfg.Gemini.Model)
 		provider = &llm.GeminiProvider{GenerateContent: model.GenerateContent}
+	case "openai":
+		client := openai.NewClient(cfg.OpenAI.APIKey)
+		provider = &llm.OpenAIProvider{CreateChatCompletion: client.CreateChatCompletion, Model: cfg.OpenAI.Model}
 	case "ollama":
 		hostURL, err := url.Parse(cfg.Ollama.Host)
 		if err != nil {

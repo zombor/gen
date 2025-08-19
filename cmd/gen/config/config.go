@@ -11,10 +11,22 @@ import (
 
 // Config holds the configuration for the application.
 type Config struct {
-	Provider    string
-	APIKey      string
-	GeminiModel string
-	Ollama      OllamaConfig
+	Provider string
+	Gemini   GeminiConfig
+	OpenAI   OpenAIConfig
+	Ollama   OllamaConfig
+}
+
+// GeminiConfig holds the configuration for the Gemini provider.
+type GeminiConfig struct {
+	APIKey string
+	Model  string
+}
+
+// OpenAIConfig holds the configuration for the OpenAI provider.
+type OpenAIConfig struct {
+	APIKey string
+	Model  string
 }
 
 // OllamaConfig holds the configuration for the Ollama provider.
@@ -27,13 +39,15 @@ type OllamaConfig struct {
 func Load(version, commit, date string) (*Config, error) {
 	fs := flag.NewFlagSet("gen", flag.ExitOnError)
 	var (
-		provider    = fs.String("provider", "gemini", "LLM provider to use (gemini or ollama)")
-		apiKey      = fs.String("api-key", "", "Gemini API key")
-		geminiModel = fs.String("gemini-model", "gemini-1.5-flash", "Gemini model to use")
-		ollamaHost  = fs.String("ollama-host", "http://localhost:11434", "Ollama host")
-		ollamaModel = fs.String("ollama-model", "llama2", "Ollama model")
-		configPath  = fs.String("config", "", "path to config file")
-		showVersion = fs.Bool("version", false, "show version")
+		provider       = fs.String("provider", "gemini", "LLM provider to use (gemini, openai, or ollama)")
+		geminiAPIKey   = fs.String("gemini-api-key", "", "Gemini API key")
+		geminiModel    = fs.String("gemini-model", "gemini-1.5-flash", "Gemini model to use")
+		openaiAPIKey   = fs.String("openai-api-key", "", "OpenAI API key")
+		openaiModel    = fs.String("openai-model", "gpt-4o", "OpenAI model to use")
+		ollamaHost     = fs.String("ollama-host", "http://localhost:11434", "Ollama host")
+		ollamaModel    = fs.String("ollama-model", "llama2", "Ollama model")
+		configPath     = fs.String("config", "", "path to config file")
+		showVersion    = fs.Bool("version", false, "show version")
 	)
 
 	home, err := os.UserHomeDir()
@@ -63,8 +77,10 @@ func Load(version, commit, date string) (*Config, error) {
 	}
 
 	cfg.Provider = *provider
-	cfg.APIKey = *apiKey
-	cfg.GeminiModel = *geminiModel
+	cfg.Gemini.APIKey = *geminiAPIKey
+	cfg.Gemini.Model = *geminiModel
+	cfg.OpenAI.APIKey = *openaiAPIKey
+	cfg.OpenAI.Model = *openaiModel
 	cfg.Ollama.Host = *ollamaHost
 	cfg.Ollama.Model = *ollamaModel
 

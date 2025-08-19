@@ -11,6 +11,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.24.0
 	github.com/onsi/gomega v1.38.0
 	github.com/peterbourgon/ff/v3 v3.4.0
+	github.com/sashabaranov/go-openai v1.41.1
 	google.golang.org/api v0.186.0
 )
 
