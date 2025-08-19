@@ -10,13 +10,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/zombor/gen/cmd/gen/config"
-	"github.com/zombor/gen/cmd/gen/llm"
-	"github.com/zombor/gen/cmd/gen/tui"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/google/generative-ai-go/genai"
 	"github.com/ollama/ollama/api"
 	"google.golang.org/api/option"
+
+	"github.com/zombor/gen/cmd/gen/config"
+	"github.com/zombor/gen/cmd/gen/tui"
+	"github.com/zombor/gen/llm"
 )
 
 func getShell() string {
