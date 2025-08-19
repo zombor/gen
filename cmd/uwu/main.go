@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/zombor/uwu/cmd/uwu/config"
 	"github.com/zombor/uwu/cmd/uwu/tui"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/google/generative-ai-go/genai"
@@ -53,6 +54,12 @@ func getShell() string {
 }
 
 func main() {
+	cfg, err := config.Load()
+	if err != nil {
+		fmt.Printf("Error loading config: %v\n", err)
+		os.Exit(1)
+	}
+
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: uwu <prompt>")
 		os.Exit(1)
@@ -60,15 +67,9 @@ func main() {
 
 	prompt := strings.Join(os.Args[1:], " ")
 
-	apiKey := os.Getenv("GEMINI_API_KEY")
-	if apiKey == "" {
-		fmt.Println("Error: GEMINI_API_KEY environment variable not set.")
-		os.Exit(1)
-	}
-
 	command, confirmed := tui.Run(func(send func(tea.Msg)) {
 		ctx := context.Background()
-		client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
+		client, err := genai.NewClient(ctx, option.WithAPIKey(cfg.APIKey))
 		if err != nil {
 			log.Fatal(err)
 		}
