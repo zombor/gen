@@ -44,6 +44,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	flag.Parse()
+
 	var provider llm.LLMProvider
 
 	switch cfg.Provider {
