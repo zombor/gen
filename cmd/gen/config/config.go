@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -22,16 +23,19 @@ type OllamaConfig struct {
 	Model string
 }
 
+const version = "0.0.1"
+
 // Load loads the configuration from a file, environment variables, and flags.
 func Load() (*Config, error) {
 	fs := flag.NewFlagSet("gen", flag.ExitOnError)
 	var (
-		provider = fs.String("provider", "gemini", "LLM provider to use (gemini or ollama)")
-		apiKey = fs.String("api-key", "", "Gemini API key")
-		geminiModel = fs.String("gemini-model", "gemini-2.5-flash", "Gemini model to use")
-		ollamaHost = fs.String("ollama-host", "http://localhost:11434", "Ollama host")
+		provider    = fs.String("provider", "gemini", "LLM provider to use (gemini or ollama)")
+		apiKey      = fs.String("api-key", "", "Gemini API key")
+		geminiModel = fs.String("gemini-model", "gemini-1.5-flash", "Gemini model to use")
+		ollamaHost  = fs.String("ollama-host", "http://localhost:11434", "Ollama host")
 		ollamaModel = fs.String("ollama-model", "llama2", "Ollama model")
-		configPath = fs.String("config", "", "path to config file")
+		configPath  = fs.String("config", "", "path to config file")
+		showVersion = fs.Bool("version", false, "show version")
 	)
 
 	home, err := os.UserHomeDir()
@@ -65,6 +69,11 @@ func Load() (*Config, error) {
 	cfg.GeminiModel = *geminiModel
 	cfg.Ollama.Host = *ollamaHost
 	cfg.Ollama.Model = *ollamaModel
+
+	if *showVersion {
+		fmt.Printf("gen version %s\n", version)
+		os.Exit(0)
+	}
 
 	return cfg, nil
 }
