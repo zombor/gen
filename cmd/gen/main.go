@@ -20,6 +20,7 @@ import (
 	"github.com/ollama/ollama/api"
 	opts "google.golang.org/api/option"
 	openai "github.com/sashabaranov/go-openai"
+	"github.com/liushuangls/go-anthropic"
 )
 
 var (
@@ -65,6 +66,15 @@ func main() {
 		}
 		client := api.NewClient(hostURL, nil)
 		provider = llm.NewOllamaProvider(client, cfg.Ollama.Model)
+	case "anthropic":
+		client := anthropic.NewClient(cfg.Anthropic.APIKey)
+		provider = &llm.AnthropicProvider{CreateMessages: client.CreateMessages, Model: cfg.Anthropic.Model}
+	case "bedrock":
+		bedrockClient, err := llm.NewBedrock(cfg.Bedrock.Model)
+		if err != nil {
+			log.Fatal(err)
+		}
+		provider = bedrockClient
 	default:
 		fmt.Printf("Unknown provider: %s\n", cfg.Provider)
 		os.Exit(1)

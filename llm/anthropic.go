@@ -10,7 +10,7 @@ import (
 
 // AnthropicProvider is an implementation of LLMProvider for Anthropic.
 type AnthropicProvider struct {
-	CreateMessages func(context.Context, anthropic.MessagesRequest) (*anthropic.MessagesResponse, error)
+	CreateMessages func(context.Context, anthropic.MessagesRequest) (anthropic.MessagesResponse, error)
 	Model          string
 }
 
