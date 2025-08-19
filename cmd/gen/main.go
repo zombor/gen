@@ -21,6 +21,12 @@ import (
 	"google.golang.org/api/option"
 )
 
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func getShell() string {
 	shellPath := os.Getenv("SHELL")
 	if shellPath == "" {
@@ -30,7 +36,7 @@ func getShell() string {
 }
 
 func main() {
-	cfg, err := config.Load()
+	cfg, err := config.Load(version, commit, date)
 	if err != nil {
 		fmt.Printf("Error loading config: %v\n", err)
 		os.Exit(1)
