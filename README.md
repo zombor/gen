@@ -1,6 +1,6 @@
-# uwu - AI-Powered Shell Command Generator
+# gen - AI-Powered Shell Command Generator
 
-uwu is a command-line application that leverages Large Language Models (LLMs) to generate shell commands from natural language prompts. It supports multiple LLM providers, starting with Google Gemini and Ollama.
+gen is a command-line application that leverages Large Language Models (LLMs) to generate shell commands from natural language prompts. It supports multiple LLM providers, starting with Google Gemini and Ollama.
 
 ## Features
 
@@ -12,25 +12,25 @@ uwu is a command-line application that leverages Large Language Models (LLMs) to
 
 ## Installation
 
-To build `uwu`, make sure you have Go installed (Go 1.21 or later is recommended).
+To build `gen`, make sure you have Go installed (Go 1.21 or later is recommended).
 
 ```bash
-git clone https://github.com/zombor/uwu.git
-cd uwu
-go build -o uwu ./cmd/uwu
+git clone https://github.com/zombor/gen.git
+cd gen
+go build -o gen ./cmd/gen
 ```
 
-This will create an executable named `uwu` in the project root directory.
+This will create an executable named `gen` in the project root directory.
 
 ## Configuration
 
-uwu can be configured using a configuration file, environment variables, or command-line flags. The order of precedence is: command-line flags > environment variables > configuration file.
+gen can be configured using a configuration file, environment variables, or command-line flags. The order of precedence is: command-line flags > environment variables > configuration file.
 
 ### Configuration File
 
-The default configuration file is located at `~/.uwu/config`. This file uses a plain key-value format.
+The default configuration file is located at `~/.gen/config`. This file uses a plain key-value format.
 
-Example `~/.uwu/config`:
+Example `~/.gen/config`:
 
 ```
 provider gemini
@@ -45,16 +45,16 @@ gemini-model gemini-2.5-flash # Optional, defaults to gemini-2.5-flash
 
 ### Environment Variables
 
-All configuration options can be set using environment variables prefixed with `UWU_`.
+All configuration options can be set using environment variables prefixed with `GEN_`.
 
 Example:
 
 ```bash
-export UWU_API_KEY="YOUR_GEMINI_API_KEY"
-export UWU_GEMINI_MODEL="gemini-pro"
-export UWU_PROVIDER="ollama"
-export UWU_OLLAMA_HOST="http://localhost:11434"
-export UWU_OLLAMA_MODEL="llama2"
+export GEN_API_KEY="YOUR_GEMINI_API_KEY"
+export GEN_GEMINI_MODEL="gemini-pro"
+export GEN_PROVIDER="ollama"
+export GEN_OLLAMA_HOST="http://localhost:11434"
+export GEN_OLLAMA_MODEL="llama2"
 ```
 
 ### Command-Line Flags
@@ -64,7 +64,7 @@ All configuration options can also be set using command-line flags.
 Example:
 
 ```bash
-uwu --provider gemini --api-key YOUR_GEMINI_API_KEY --gemini-model gemini-pro "list all files"
+gen --provider gemini --api-key YOUR_GEMINI_API_KEY --gemini-model gemini-pro "list all files"
 ```
 
 Available flags:
@@ -74,14 +74,14 @@ Available flags:
 - `--gemini-model`: Gemini model to use. Default: `gemini-2.5-flash`.
 - `--ollama-host`: Ollama host URL. Default: `http://localhost:11434`.
 - `--ollama-model`: Ollama model to use. Default: `llama2`.
-- `--config`: Path to the configuration file. Default: `~/.uwu/config`.
+- `--config`: Path to the configuration file. Default: `~/.gen/config`.
 
 ## Usage
 
-To generate a shell command, run `uwu` followed by your natural language prompt:
+To generate a shell command, run `gen` followed by your natural language prompt:
 
 ```bash
-./uwu "list all files in the current directory"
+./gen "list all files in the current directory"
 ```
 
 The application will:
@@ -94,7 +94,7 @@ The application will:
 ### Example
 
 ```bash
-./uwu "create a new directory called my_project"
+./gen "create a new directory called my_project"
 ```
 
 ## Contributing

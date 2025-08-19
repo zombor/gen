@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/zombor/uwu/cmd/uwu/config"
-	"github.com/zombor/uwu/cmd/uwu/llm"
-	"github.com/zombor/uwu/cmd/uwu/tui"
+	"github.com/zombor/gen/cmd/gen/config"
+	"github.com/zombor/gen/cmd/gen/llm"
+	"github.com/zombor/gen/cmd/gen/tui"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/google/generative-ai-go/genai"
 	"github.com/ollama/ollama/api"
@@ -59,7 +59,7 @@ func main() {
 	}
 
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: uwu <prompt>")
+		fmt.Println("Usage: gen <prompt>")
 		os.Exit(1)
 	}
 

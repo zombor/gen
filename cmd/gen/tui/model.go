@@ -22,9 +22,9 @@ func NewModel() Model {
 	s.Spinner = spinner.Dot
 
 ti := textinput.New()
-ti.Focus()
+	ti.Focus()
 
-r, _ := glamour.NewTermRenderer(
+	r, _ := glamour.NewTermRenderer(
 		glamour.WithAutoStyle(),
 		glamour.WithWordWrap(0),
 	)
@@ -71,7 +71,9 @@ func (m Model) View() string {
 		return m.Spinner.View() + " Generating command..."
 	}
 
-	return "Generated command:\n" + m.TextInput.View() + "\n\n(enter to confirm, ctrl+c to quit)"
+	formattedCmd, _ := m.Renderer.Render("```\n" + m.Command + "\n```")
+
+	return "Generated command:\n" + formattedCmd + "\n\n(enter to confirm, ctrl+c to quit)"
 }
 
 type CommandGeneratedMsg string
