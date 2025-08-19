@@ -23,10 +23,8 @@ type OllamaConfig struct {
 	Model string
 }
 
-const version = "0.0.1"
-
 // Load loads the configuration from a file, environment variables, and flags.
-func Load() (*Config, error) {
+func Load(version, commit, date string) (*Config, error) {
 	fs := flag.NewFlagSet("gen", flag.ExitOnError)
 	var (
 		provider    = fs.String("provider", "gemini", "LLM provider to use (gemini or ollama)")
@@ -71,7 +69,7 @@ func Load() (*Config, error) {
 	cfg.Ollama.Model = *ollamaModel
 
 	if *showVersion {
-		fmt.Printf("gen version %s\n", version)
+		fmt.Printf("gen version %s (commit: %s, built at: %s)\n", version, commit, date)
 		os.Exit(0)
 	}
 
