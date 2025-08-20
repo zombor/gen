@@ -2,6 +2,7 @@ package llm
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -25,7 +26,8 @@ func NewOllamaProvider(client *api.Client, model string) *OllamaProvider {
 func (p *OllamaProvider) GenerateCommand(ctx context.Context, prompt, shell string) (string, error) {
 	req := &api.GenerateRequest{
 		Model:  p.Model,
-		Prompt: fmt.Sprintf("Given the following prompt, generate a single shell command. The command should be able to be executed on a %s machine in a %s shell. The command should be reasonable and not destructive. Return only the command, with no explanation or other text.\n\nPrompt: %s", os.Getenv("GOOS"), shell, prompt),
+		Format: json.RawMessage(`"json"`),
+		Prompt: fmt.Sprintf(`Given the following prompt, generate a single shell command. The command should be able to be executed on a %s machine in a %s shell. The command should be reasonable and not destructive. Return the command in a json object with a single key "command".\n\nPrompt: %s`, os.Getenv("GOOS"), shell, prompt),
 	}
 
 	var response string
@@ -51,5 +53,12 @@ func (p *OllamaProvider) GenerateCommand(ctx context.Context, prompt, shell stri
 		return "", err
 	}
 
-	return response, nil
+	var command struct {
+		Command string `json:"command"`
+	}
+	if err := json.Unmarshal([]byte(response), &command); err != nil {
+		return "", fmt.Errorf("failed to unmarshal response from ollama: %w", err)
+	}
+
+	return command.Command, nil
 }

@@ -21,7 +21,7 @@ var _ = Describe("OllamaProvider", func() {
 
 	BeforeEach(func() {
 		// Default mock values for successful command generation
-		mockResponse = "echo hello"
+		mockResponse = `{"command": "echo hello"}`
 		mockError = nil
 
 		generateFunc = func(ctx context.Context, req *api.GenerateRequest, fn api.GenerateResponseFunc) error {
@@ -54,6 +54,18 @@ var _ = Describe("OllamaProvider", func() {
 			It("should return an ollama error and empty command", func() {
 				command, err := provider.GenerateCommand(context.Background(), "say hello", "bash")
 				Expect([]interface{}{command, err}).To(ConsistOf("", errors.New("ollama error")))
+			})
+		})
+
+		When("unmarshaling the response fails", func() {
+			BeforeEach(func() {
+				mockResponse = "invalid json"
+			})
+
+			It("should return an unmarshal error and empty command", func() {
+				command, err := provider.GenerateCommand(context.Background(), "say hello", "bash")
+				Expect(command).To(BeEmpty())
+				Expect(err).To(HaveOccurred())
 			})
 		})
 	})

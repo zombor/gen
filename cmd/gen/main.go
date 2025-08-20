@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
@@ -11,10 +12,8 @@ import (
 	"strings"
 
 	"github.com/zombor/gen/cmd/gen/config"
-	"github.com/zombor/gen/cmd/gen/tui"
 	"github.com/zombor/gen/llm"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/google/generative-ai-go/genai"
 	"github.com/liushuangls/go-anthropic"
 	"github.com/ollama/ollama/api"
@@ -43,8 +42,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	
-
 	ctx := context.Background()
 	var provider llm.LLMProvider
 
@@ -65,7 +62,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		client := api.NewClient(hostURL, nil)
+		client := api.NewClient(hostURL, &http.Client{})
 		provider = llm.NewOllamaProvider(client, cfg.Ollama.Model)
 	case "anthropic":
 		client := anthropic.NewClient(cfg.Anthropic.APIKey)
@@ -88,27 +85,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	command, confirmed, err := tui.Run(func(send func(tea.Msg)) {
-		shell := getShell()
-		command, err := provider.GenerateCommand(ctx, prompt, shell)
-		if err != nil {
-			send(tui.ErrMsg{Err: err})
-			return
-		}
-
-		// The model sometimes returns the command wrapped in backticks, so we remove them.
-		command = strings.Trim(command, "`")
-
-		send(tui.CommandGeneratedMsg(command))
-	})
-
+	shell := getShell()
+	command, err := provider.GenerateCommand(ctx, prompt, shell)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	if confirmed {
-		shell := getShell()
+	// The model sometimes returns the command wrapped in backticks, so we remove them.
+	command = strings.Trim(command, "`")
+
+	fmt.Printf("Generated command: \n\n%s\n\n", command)
+	fmt.Print("Execute? (y/N) ")
+
+	var response string
+	fmt.Scanln(&response)
+
+	if strings.ToLower(response) == "y" {
 		cmd := exec.Command(shell, "-c", command)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
