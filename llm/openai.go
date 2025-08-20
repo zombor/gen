@@ -15,8 +15,7 @@ type OpenAIProvider struct {
 }
 
 // GenerateCommand generates a command using the OpenAI LLM.
-func (p *OpenAIProvider) GenerateCommand(prompt, shell string) (string, error) {
-	ctx := context.Background()
+func (p *OpenAIProvider) GenerateCommand(ctx context.Context, prompt, shell string) (string, error) {
 	resp, err := p.CreateChatCompletion(
 		ctx,
 		openai.ChatCompletionRequest{

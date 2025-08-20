@@ -43,7 +43,7 @@ var _ = Describe("AnthropicProvider", func() {
 		})
 
 		JustBeforeEach(func() {
-			command, err = provider.GenerateCommand(prompt, shell)
+			command, err = provider.GenerateCommand(context.Background(), prompt, shell)
 		})
 
 		Context("when the API call is successful", func() {

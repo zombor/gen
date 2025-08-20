@@ -45,11 +45,11 @@ func main() {
 
 	
 
+	ctx := context.Background()
 	var provider llm.LLMProvider
 
 	switch cfg.Provider {
 	case "gemini":
-		ctx := context.Background()
 		client, err := genai.NewClient(ctx, opts.WithAPIKey(cfg.Gemini.APIKey))
 		if err != nil {
 			log.Fatal(err)
@@ -71,7 +71,7 @@ func main() {
 		client := anthropic.NewClient(cfg.Anthropic.APIKey)
 		provider = &llm.AnthropicProvider{CreateMessages: client.CreateMessages, Model: cfg.Anthropic.Model}
 	case "bedrock":
-		bedrockClient, err := llm.NewBedrock(cfg.Bedrock.Model)
+		bedrockClient, err := llm.NewBedrock(ctx, cfg.Bedrock.Model)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -90,7 +90,7 @@ func main() {
 
 	command, confirmed, err := tui.Run(func(send func(tea.Msg)) {
 		shell := getShell()
-		command, err := provider.GenerateCommand(prompt, shell)
+		command, err := provider.GenerateCommand(ctx, prompt, shell)
 		if err != nil {
 			send(tui.ErrMsg{Err: err})
 			return

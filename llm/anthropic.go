@@ -15,8 +15,7 @@ type AnthropicProvider struct {
 }
 
 // GenerateCommand generates a command using the Anthropic LLM.
-func (p *AnthropicProvider) GenerateCommand(prompt, shell string) (string, error) {
-	ctx := context.Background()
+func (p *AnthropicProvider) GenerateCommand(ctx context.Context, prompt, shell string) (string, error) {
 	resp, err := p.CreateMessages(
 		ctx,
 		anthropic.MessagesRequest{

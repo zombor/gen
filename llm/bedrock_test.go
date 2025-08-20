@@ -46,7 +46,7 @@ var _ = Describe("BedrockClient", func() {
 				InvokeModel: mockInvokeModel,
 				Model:       modelID,
 			}
-			response, err = bedrockClient.GenerateCommand(prompt, shell)
+			response, err = bedrockClient.GenerateCommand(context.Background(), prompt, shell)
 		})
 
 		Context("when the API call is successful", func() {

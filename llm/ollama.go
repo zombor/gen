@@ -22,8 +22,7 @@ func NewOllamaProvider(client *api.Client, model string) *OllamaProvider {
 }
 
 // GenerateCommand generates a command using the Ollama LLM.
-func (p *OllamaProvider) GenerateCommand(prompt, shell string) (string, error) {
-	ctx := context.Background()
+func (p *OllamaProvider) GenerateCommand(ctx context.Context, prompt, shell string) (string, error) {
 	req := &api.GenerateRequest{
 		Model:  p.Model,
 		Prompt: fmt.Sprintf("Given the following prompt, generate a single shell command. The command should be able to be executed on a %s machine in a %s shell. The command should be reasonable and not destructive. Return only the command, with no explanation or other text.\n\nPrompt: %s", os.Getenv("GOOS"), shell, prompt),

@@ -40,7 +40,7 @@ var _ = Describe("OllamaProvider", func() {
 	Context("GenerateCommand", func() {
 		When("command generation is successful", func() {
 			It("should return the generated command and no error", func() {
-				command, err := provider.GenerateCommand("say hello", "bash")
+				command, err := provider.GenerateCommand(context.Background(), "say hello", "bash")
 				Expect([]interface{}{command, err}).To(ConsistOf("echo hello", nil))
 			})
 		})
@@ -52,7 +52,7 @@ var _ = Describe("OllamaProvider", func() {
 			})
 
 			It("should return an ollama error and empty command", func() {
-				command, err := provider.GenerateCommand("say hello", "bash")
+				command, err := provider.GenerateCommand(context.Background(), "say hello", "bash")
 				Expect([]interface{}{command, err}).To(ConsistOf("", errors.New("ollama error")))
 			})
 		})

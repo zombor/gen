@@ -21,8 +21,8 @@ type BedrockClient struct {
 }
 
 // NewBedrock creates a new BedrockClient.
-func NewBedrock(model string) (*BedrockClient, error) {
-	cfg, err := config.LoadDefaultConfig(context.TODO())
+func NewBedrock(ctx context.Context, model string) (*BedrockClient, error) {
+	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load AWS config: %w", err)
 	}
@@ -36,7 +36,7 @@ func NewBedrock(model string) (*BedrockClient, error) {
 }
 
 // GenerateCommand implements the LLMProvider interface for BedrockClient.
-func (c *BedrockClient) GenerateCommand(prompt, shell string) (string, error) {
+func (c *BedrockClient) GenerateCommand(ctx context.Context, prompt, shell string) (string, error) {
 	fullPrompt := fmt.Sprintf(`Given the following prompt, generate a single shell command. The command should be able to be executed on a %s machine in a %s shell. The command should be reasonable and not destructive. Return only the command, with no explanation or other text.
 
 Prompt: %s`, os.Getenv("GOOS"), shell, prompt)
@@ -48,7 +48,7 @@ Prompt: %s`, os.Getenv("GOOS"), shell, prompt)
 		return "", fmt.Errorf("failed to marshal prompt: %w", err)
 	}
 
-	output, err := c.InvokeModel(context.TODO(), &bedrockruntime.InvokeModelInput{
+	output, err := c.InvokeModel(ctx, &bedrockruntime.InvokeModelInput{
 		ModelId:     aws.String(c.Model),
 		ContentType: aws.String("application/json"),
 		Body:        body,

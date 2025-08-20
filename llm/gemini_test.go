@@ -44,7 +44,7 @@ var _ = Describe("GeminiProvider", func() {
 	JustBeforeEach(func() {
 		command, err = (&llm.GeminiProvider{
 			GenerateContent: generateContentFunc,
-		}).GenerateCommand("list files", "bash")
+		}).GenerateCommand(context.Background(), "list files", "bash")
 	})
 
 	Context("GenerateContent", func() {

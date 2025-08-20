@@ -43,7 +43,7 @@ var _ = Describe("OpenAIProvider", func() {
 	Describe("GenerateCommand", func() {
 		Context("when the OpenAI API call is successful", func() {
 			It("returns the generated command", func() {
-				command, err := provider.GenerateCommand("list files", "bash")
+				command, err := provider.GenerateCommand(context.Background(), "list files", "bash")
 				Expect(command).To(Equal("ls -l"))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -57,7 +57,7 @@ var _ = Describe("OpenAIProvider", func() {
 			})
 
 			It("returns an error", func() {
-				command, err := provider.GenerateCommand("list files", "bash")
+				command, err := provider.GenerateCommand(context.Background(), "list files", "bash")
 				Expect(command).To(BeEmpty())
 				Expect(err).To(MatchError("API error"))
 			})
@@ -72,7 +72,7 @@ var _ = Describe("OpenAIProvider", func() {
 			})
 
 			It("returns an error", func() {
-				command, err := provider.GenerateCommand("list files", "bash")
+				command, err := provider.GenerateCommand(context.Background(), "list files", "bash")
 				Expect(command).To(BeEmpty())
 				Expect(err).To(MatchError("no command generated"))
 			})

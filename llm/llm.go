@@ -1,6 +1,10 @@
 package llm
 
+import (
+	"context"
+)
+
 // LLMProvider defines the interface for a language model provider.
 type LLMProvider interface {
-	GenerateCommand(prompt, shell string) (string, error)
+	GenerateCommand(ctx context.Context, prompt, shell string) (string, error)
 }
