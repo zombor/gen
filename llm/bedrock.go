@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -57,7 +56,6 @@ Prompt: %s`, os.Getenv("GOOS"), shell, prompt)
 	if err != nil {
 		var ae *types.AccessDeniedException
 		if errors.As(err, &ae) {
-			log.Printf("Access denied: %v", ae)
 			return "", fmt.Errorf("access denied to Bedrock API. Please check your AWS credentials and permissions: %w", err)
 		}
 		return "", fmt.Errorf("failed to invoke Bedrock model: %w", err)
