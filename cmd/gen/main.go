@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -41,6 +43,14 @@ func main() {
 		fmt.Printf("Error loading config: %v\n", err)
 		os.Exit(1)
 	}
+
+	logger := slog.New(slog.NewJSONHandler(ioutil.Discard, nil))
+	if cfg.Debug {
+		logger = slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		}))
+	}
+	slog.SetDefault(logger)
 
 	ctx := context.Background()
 	var provider llm.LLMProvider
@@ -86,7 +96,7 @@ func main() {
 	}
 
 	shell := getShell()
-	command, err := provider.GenerateCommand(ctx, prompt, shell)
+	command, err := provider.GenerateCommand(ctx, logger, prompt, shell)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		os.Exit(1)

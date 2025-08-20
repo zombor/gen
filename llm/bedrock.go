@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -35,10 +36,11 @@ func NewBedrock(ctx context.Context, model string) (*BedrockClient, error) {
 }
 
 // GenerateCommand implements the LLMProvider interface for BedrockClient.
-func (c *BedrockClient) GenerateCommand(ctx context.Context, prompt, shell string) (string, error) {
+func (c *BedrockClient) GenerateCommand(ctx context.Context, logger *slog.Logger, prompt, shell string) (string, error) {
 	fullPrompt := fmt.Sprintf(`Given the following prompt, generate a single shell command. The command should be able to be executed on a %s machine in a %s shell. The command should be reasonable and not destructive. Return only the command, with no explanation or other text.
 
 Prompt: %s`, os.Getenv("GOOS"), shell, prompt)
+	logger.Debug("bedrock prompt", "prompt", fullPrompt)
 
 	body, err := json.Marshal(map[string]string{
 		"prompt": fullPrompt,
@@ -71,5 +73,6 @@ Prompt: %s`, os.Getenv("GOOS"), shell, prompt)
 		return "", fmt.Errorf("bedrock response did not contain 'completion' field")
 	}
 
+	logger.Debug("bedrock response", "response", text)
 	return text, nil
 }

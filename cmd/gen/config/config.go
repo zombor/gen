@@ -17,6 +17,7 @@ type Config struct {
 	Ollama    OllamaConfig
 	Anthropic AnthropicConfig
 	Bedrock   BedrockConfig
+	Debug     bool
 }
 
 // GeminiConfig holds the configuration for the Gemini provider.
@@ -66,6 +67,7 @@ func Load(version, commit, date string) (*Config, []string, error) {
 		bedrockRegion   = fs.String("bedrock-region", "us-east-1", "AWS region for Bedrock")
 		configPath      = fs.String("config", "", "path to config file")
 		showVersion     = fs.Bool("version", false, "show version")
+		debug           = fs.Bool("debug", false, "enable debug logging")
 	)
 
 	home, err := os.UserHomeDir()
@@ -105,6 +107,7 @@ func Load(version, commit, date string) (*Config, []string, error) {
 	cfg.Anthropic.Model = *anthropicModel
 	cfg.Bedrock.Model = *bedrockModel
 	cfg.Bedrock.Region = *bedrockRegion
+	cfg.Debug = *debug
 
 	if *showVersion {
 		fmt.Printf("gen version %s (commit: %s, built at: %s)\n", version, commit, date)

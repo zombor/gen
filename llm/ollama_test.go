@@ -3,6 +3,8 @@ package llm_test
 import (
 	"context"
 	"errors"
+	"io/ioutil"
+	"log/slog"
 
 	"github.com/ollama/ollama/api"
 	. "github.com/onsi/ginkgo/v2"
@@ -17,12 +19,14 @@ var _ = Describe("OllamaProvider", func() {
 		generateFunc func(context.Context, *api.GenerateRequest, api.GenerateResponseFunc) error
 		mockResponse string
 		mockError    error
+		logger       *slog.Logger
 	)
 
 	BeforeEach(func() {
 		// Default mock values for successful command generation
 		mockResponse = `{"command": "echo hello"}`
 		mockError = nil
+		logger = slog.New(slog.NewJSONHandler(ioutil.Discard, nil))
 
 		generateFunc = func(ctx context.Context, req *api.GenerateRequest, fn api.GenerateResponseFunc) error {
 			_ = fn(api.GenerateResponse{Response: mockResponse})
@@ -40,7 +44,7 @@ var _ = Describe("OllamaProvider", func() {
 	Context("GenerateCommand", func() {
 		When("command generation is successful", func() {
 			It("should return the generated command and no error", func() {
-				command, err := provider.GenerateCommand(context.Background(), "say hello", "bash")
+				command, err := provider.GenerateCommand(context.Background(), logger, "say hello", "bash")
 				Expect([]interface{}{command, err}).To(ConsistOf("echo hello", nil))
 			})
 		})
@@ -52,7 +56,7 @@ var _ = Describe("OllamaProvider", func() {
 			})
 
 			It("should return an ollama error and empty command", func() {
-				command, err := provider.GenerateCommand(context.Background(), "say hello", "bash")
+				command, err := provider.GenerateCommand(context.Background(), logger, "say hello", "bash")
 				Expect([]interface{}{command, err}).To(ConsistOf("", errors.New("ollama error")))
 			})
 		})
@@ -63,7 +67,7 @@ var _ = Describe("OllamaProvider", func() {
 			})
 
 			It("should return an unmarshal error and empty command", func() {
-				command, err := provider.GenerateCommand(context.Background(), "say hello", "bash")
+				command, err := provider.GenerateCommand(context.Background(), logger, "say hello", "bash")
 				Expect(command).To(BeEmpty())
 				Expect(err).To(HaveOccurred())
 			})

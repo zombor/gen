@@ -3,6 +3,7 @@ package llm
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/google/generative-ai-go/genai"
@@ -14,8 +15,11 @@ type GeminiProvider struct {
 }
 
 // GenerateCommand generates a command using the Gemini LLM.
-func (p *GeminiProvider) GenerateCommand(ctx context.Context, prompt, shell string) (string, error) {
-	resp, err := p.GenerateContent(ctx, genai.Text(fmt.Sprintf("Given the following prompt, generate a single shell command. The command should be able to be executed on a %s machine in a %s shell. The command should be reasonable and not destructive. Return only the command, with no explanation or other text.\n\nPrompt: %s", os.Getenv("GOOS"), shell, prompt)))
+func (p *GeminiProvider) GenerateCommand(ctx context.Context, logger *slog.Logger, prompt, shell string) (string, error) {
+	fullPrompt := fmt.Sprintf("Given the following prompt, generate a single shell command. The command should be able to be executed on a %s machine in a %s shell. The command should be reasonable and not destructive. Return only the command, with no explanation or other text.\n\nPrompt: %s", os.Getenv("GOOS"), shell, prompt)
+	logger.Debug("gemini prompt", "prompt", fullPrompt)
+
+	resp, err := p.GenerateContent(ctx, genai.Text(fullPrompt))
 
 	if err != nil {
 		return "", err
@@ -24,6 +28,7 @@ func (p *GeminiProvider) GenerateCommand(ctx context.Context, prompt, shell stri
 	if len(resp.Candidates) > 0 {
 		for _, part := range resp.Candidates[0].Content.Parts {
 			if txt, ok := part.(genai.Text); ok {
+				logger.Debug("gemini response", "response", string(txt))
 				return string(txt), nil
 			}
 		}

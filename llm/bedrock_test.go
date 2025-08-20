@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"log/slog"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -20,10 +22,12 @@ var _ = Describe("BedrockClient", func() {
 		bedrockClient   *llm.BedrockClient
 		mockInvokeModel func(ctx context.Context, params *bedrockruntime.InvokeModelInput, optFns ...func(*bedrockruntime.Options)) (*bedrockruntime.InvokeModelOutput, error)
 		modelID         string
+		logger          *slog.Logger
 	)
 
 	BeforeEach(func() {
 		modelID = "test-model"
+		logger = slog.New(slog.NewJSONHandler(ioutil.Discard, nil))
 	})
 
 	Describe("GenerateCommand", func() {
@@ -46,7 +50,7 @@ var _ = Describe("BedrockClient", func() {
 				InvokeModel: mockInvokeModel,
 				Model:       modelID,
 			}
-			response, err = bedrockClient.GenerateCommand(context.Background(), prompt, shell)
+			response, err = bedrockClient.GenerateCommand(context.Background(), logger, prompt, shell)
 		})
 
 		Context("when the API call is successful", func() {

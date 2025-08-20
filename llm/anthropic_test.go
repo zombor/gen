@@ -3,6 +3,8 @@ package llm_test
 import (
 	"context"
 	"errors"
+	"io/ioutil"
+	"log/slog"
 	"os"
 
 	anthropic "github.com/liushuangls/go-anthropic"
@@ -17,10 +19,12 @@ var _ = Describe("AnthropicProvider", func() {
 		provider           *llm.AnthropicProvider
 		mockCreateMessages func(context.Context, anthropic.MessagesRequest) (anthropic.MessagesResponse, error)
 		model              string
+		logger             *slog.Logger
 	)
 
 	BeforeEach(func() {
 		model = "claude-test"
+		logger = slog.New(slog.NewJSONHandler(ioutil.Discard, nil))
 		provider = &llm.AnthropicProvider{
 			CreateMessages: func(ctx context.Context, req anthropic.MessagesRequest) (anthropic.MessagesResponse, error) {
 				return mockCreateMessages(ctx, req)
@@ -43,7 +47,7 @@ var _ = Describe("AnthropicProvider", func() {
 		})
 
 		JustBeforeEach(func() {
-			command, err = provider.GenerateCommand(context.Background(), prompt, shell)
+			command, err = provider.GenerateCommand(context.Background(), logger, prompt, shell)
 		})
 
 		Context("when the API call is successful", func() {

@@ -3,6 +3,8 @@ package llm_test
 import (
 	"context"
 	"errors"
+	"io/ioutil"
+	"log/slog"
 
 	"github.com/google/generative-ai-go/genai"
 	. "github.com/onsi/ginkgo/v2"
@@ -16,6 +18,7 @@ var _ = Describe("GeminiProvider", func() {
 		generateContentFunc func(context.Context, ...genai.Part) (*genai.GenerateContentResponse, error)
 		mockResponse        *genai.GenerateContentResponse
 		mockError           error
+		logger              *slog.Logger
 
 		command string
 		err     error
@@ -35,6 +38,7 @@ var _ = Describe("GeminiProvider", func() {
 			},
 		}
 		mockError = nil
+		logger = slog.New(slog.NewJSONHandler(ioutil.Discard, nil))
 
 		generateContentFunc = func(context.Context, ...genai.Part) (*genai.GenerateContentResponse, error) {
 			return mockResponse, mockError
@@ -44,7 +48,7 @@ var _ = Describe("GeminiProvider", func() {
 	JustBeforeEach(func() {
 		command, err = (&llm.GeminiProvider{
 			GenerateContent: generateContentFunc,
-		}).GenerateCommand(context.Background(), "list files", "bash")
+		}).GenerateCommand(context.Background(), logger, "list files", "bash")
 	})
 
 	Context("GenerateContent", func() {
