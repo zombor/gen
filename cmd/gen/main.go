@@ -91,11 +91,6 @@ func main() {
 
 	prompt := strings.Join(args, " ")
 
-	if prompt == "" {
-		fmt.Println("Usage: gen <prompt>")
-		os.Exit(1)
-	}
-
 	if cfg.TUI {
 		model := tui.NewModel(prompt, provider)
 		finalModel, err := tui.Run(model)
@@ -108,6 +103,11 @@ func main() {
 			runCommand(m.Command())
 		}
 	} else {
+		if prompt == "" {
+			fmt.Println("Usage: gen <prompt>")
+			os.Exit(1)
+		}
+
 		shell := getShell()
 		command, err := provider.GenerateCommand(ctx, logger, prompt, shell)
 		if err != nil {
