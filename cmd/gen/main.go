@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/zombor/gen/cmd/gen/config"
+	"github.com/zombor/gen/cmd/gen/tui"
 	"github.com/zombor/gen/llm"
 
 	"github.com/google/generative-ai-go/genai"
@@ -95,32 +96,50 @@ func main() {
 		os.Exit(1)
 	}
 
-	shell := getShell()
-	command, err := provider.GenerateCommand(ctx, logger, prompt, shell)
-	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-		os.Exit(1)
-	}
-
-	// The model sometimes returns the command wrapped in backticks, so we remove them.
-	command = strings.Trim(command, "`")
-
-	fmt.Printf("Generated command: \n\n%s\n\n", command)
-	fmt.Print("Execute? (y/N) ")
-
-	var response string
-	fmt.Scanln(&response)
-
-	if strings.ToLower(response) == "y" {
-		cmd := exec.Command(shell, "-c", command)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		err := cmd.Run()
+	if cfg.TUI {
+		model := tui.NewModel(prompt, provider)
+		finalModel, err := tui.Run(model)
 		if err != nil {
-			fmt.Printf("Error executing command: %v\n", err)
+			fmt.Printf("Error running tui: %v\n", err)
 			os.Exit(1)
 		}
+		m := finalModel.(tui.Model)
+		if m.Accepted() {
+			runCommand(m.Command())
+		}
 	} else {
-		fmt.Println("Command execution aborted.")
+		shell := getShell()
+		command, err := provider.GenerateCommand(ctx, logger, prompt, shell)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+
+		// The model sometimes returns the command wrapped in backticks, so we remove them.
+		command = strings.Trim(command, "`")
+
+		fmt.Printf("Generated command: \n\n%s\n\n", command)
+		fmt.Print("Execute? (y/N) ")
+
+		var response string
+		fmt.Scanln(&response)
+
+		if strings.ToLower(response) == "y" {
+			runCommand(command)
+		} else {
+			fmt.Println("Command execution aborted.")
+		}
+	}
+}
+
+func runCommand(command string) {
+	shell := getShell()
+	cmd := exec.Command(shell, "-c", command)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Printf("Error executing command: %v\n", err)
+		os.Exit(1)
 	}
 }

@@ -18,6 +18,7 @@ type Config struct {
 	Anthropic AnthropicConfig
 	Bedrock   BedrockConfig
 	Debug     bool
+	TUI       bool
 }
 
 // GeminiConfig holds the configuration for the Gemini provider.
@@ -68,6 +69,7 @@ func Load(version, commit, date string) (*Config, []string, error) {
 		configPath      = fs.String("config", "", "path to config file")
 		showVersion     = fs.Bool("version", false, "show version")
 		debug           = fs.Bool("debug", false, "enable debug logging")
+		tui             = fs.Bool("tui", true, "enable TUI")
 	)
 
 	home, err := os.UserHomeDir()
@@ -108,6 +110,7 @@ func Load(version, commit, date string) (*Config, []string, error) {
 	cfg.Bedrock.Model = *bedrockModel
 	cfg.Bedrock.Region = *bedrockRegion
 	cfg.Debug = *debug
+	cfg.TUI = *tui
 
 	if *showVersion {
 		fmt.Printf("gen version %s (commit: %s, built at: %s)\n", version, commit, date)
