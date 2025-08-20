@@ -3,35 +3,30 @@ package llm_test
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"log/slog"
-	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
-	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/zombor/gen/llm"
 )
 
-var _ = Describe("BedrockClient", func() {
+var _ = Describe("Bedrock Models", func() {
 	var (
-		bedrockClient   *llm.BedrockClient
 		mockInvokeModel func(ctx context.Context, params *bedrockruntime.InvokeModelInput, optFns ...func(*bedrockruntime.Options)) (*bedrockruntime.InvokeModelOutput, error)
-		modelID         string
 		logger          *slog.Logger
 	)
 
 	BeforeEach(func() {
-		modelID = "test-model"
 		logger = slog.New(slog.NewJSONHandler(ioutil.Discard, nil))
 	})
 
-	Describe("GenerateCommand", func() {
+	Describe("NovaLiteModel", func() {
 		var (
+			model            *llm.NovaLiteModel
 			prompt           string
 			shell            string
 			expectedResponse string
@@ -40,34 +35,36 @@ var _ = Describe("BedrockClient", func() {
 		)
 
 		BeforeEach(func() {
-			prompt = "Hello, Bedrock!"
+			prompt = "Hello, Nova!"
 			shell = "bash"
-			expectedResponse = "Bedrock says hi!"
+			expectedResponse = "Nova says hi!"
 		})
 
 		JustBeforeEach(func() {
-			bedrockClient = &llm.BedrockClient{
+			model = &llm.NovaLiteModel{
 				InvokeModel: mockInvokeModel,
-				Model:       modelID,
+				Model:       "amazon.nova-lite-v1:0",
 			}
-			response, err = bedrockClient.GenerateCommand(context.Background(), logger, prompt, shell)
+			response, err = model.GenerateCommand(context.Background(), logger, prompt, shell)
 		})
 
 		Context("when the API call is successful", func() {
 			BeforeEach(func() {
 				mockInvokeModel = func(ctx context.Context, params *bedrockruntime.InvokeModelInput, optFns ...func(*bedrockruntime.Options)) (*bedrockruntime.InvokeModelOutput, error) {
-					Expect(params.ModelId).To(Equal(aws.String(modelID)))
-					Expect(params.ContentType).To(Equal(aws.String("application/json")))
-					Expect(params.Accept).To(Equal(aws.String("application/json")))
-
 					var reqBody map[string]any
 					err := json.Unmarshal(params.Body, &reqBody)
 					Expect(err).ToNot(HaveOccurred())
-					Expect(reqBody["prompt"]).To(ContainSubstring(prompt))
-					Expect(reqBody["prompt"]).To(ContainSubstring(shell))
-					Expect(reqBody["prompt"]).To(ContainSubstring(os.Getenv("GOOS")))
+					Expect(reqBody["schemaVersion"]).To(Equal("messages-v1"))
 
-					respBody, _ := json.Marshal(map[string]string{"completion": expectedResponse})
+					respBody, _ := json.Marshal(map[string]any{
+						"output": map[string]any{
+							"message": map[string]any{
+								"content": []any{
+									map[string]any{"text": expectedResponse},
+								},
+							},
+						},
+					})
 					return &bedrockruntime.InvokeModelOutput{
 						ContentType: aws.String("application/json"),
 						Body:        respBody,
@@ -83,62 +80,43 @@ var _ = Describe("BedrockClient", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
 		})
+	})
 
-		Context("when the API call returns an error", func() {
-			BeforeEach(func() {
-				mockInvokeModel = func(ctx context.Context, params *bedrockruntime.InvokeModelInput, optFns ...func(*bedrockruntime.Options)) (*bedrockruntime.InvokeModelOutput, error) {
-					return nil, errors.New("bedrock API error")
-				}
-			})
+	Describe("TitanLiteModel", func() {
+		var (
+			model            *llm.TitanLiteModel
+			prompt           string
+			shell            string
+			expectedResponse string
+			response         string
+			err              error
+		)
 
-			It("returns an error", func() {
-				Expect(err).To(MatchError(ContainSubstring("failed to invoke Bedrock model")))
-			})
-
-			It("returns an empty string", func() {
-				Expect(response).To(BeEmpty())
-			})
+		BeforeEach(func() {
+			prompt = "Hello, Titan!"
+			shell = "zsh"
+			expectedResponse = "Titan says hi!"
 		})
 
-		Context("when the API call returns an AccessDeniedException", func() {
-			BeforeEach(func() {
-				mockInvokeModel = func(ctx context.Context, params *bedrockruntime.InvokeModelInput, optFns ...func(*bedrockruntime.Options)) (*bedrockruntime.InvokeModelOutput, error) {
-					return nil, &types.AccessDeniedException{Message: aws.String("Access Denied")}
-				}
-			})
-
-			It("returns an access denied error", func() {
-				Expect(err).To(MatchError(ContainSubstring("access denied to Bedrock API")))
-			})
-
-			It("returns an empty string", func() {
-				Expect(response).To(BeEmpty())
-			})
+		JustBeforeEach(func() {
+			model = &llm.TitanLiteModel{
+				InvokeModel: mockInvokeModel,
+				Model:       "amazon.titan-text-lite-v1",
+			}
+			response, err = model.GenerateCommand(context.Background(), logger, prompt, shell)
 		})
 
-		Context("when the response body is invalid JSON", func() {
+		Context("when the API call is successful", func() {
 			BeforeEach(func() {
 				mockInvokeModel = func(ctx context.Context, params *bedrockruntime.InvokeModelInput, optFns ...func(*bedrockruntime.Options)) (*bedrockruntime.InvokeModelOutput, error) {
-					return &bedrockruntime.InvokeModelOutput{
-						ContentType: aws.String("application/json"),
-						Body:        []byte("invalid json"),
-					}, nil
-				}
-			})
+					var reqBody map[string]any
+					err := json.Unmarshal(params.Body, &reqBody)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(reqBody["inputText"]).ToNot(BeEmpty())
 
-			It("returns an error", func() {
-				Expect(err).To(MatchError(ContainSubstring("failed to unmarshal Bedrock response")))
-			})
-
-			It("returns an empty string", func() {
-				Expect(response).To(BeEmpty())
-			})
-		})
-
-		Context("when the response body does not contain 'completion' field", func() {
-			BeforeEach(func() {
-				mockInvokeModel = func(ctx context.Context, params *bedrockruntime.InvokeModelInput, optFns ...func(*bedrockruntime.Options)) (*bedrockruntime.InvokeModelOutput, error) {
-					respBody, _ := json.Marshal(map[string]string{"message": "no completion"})
+					respBody, _ := json.Marshal(map[string][]map[string]string{
+						"results": {{"outputText": expectedResponse}},
+					})
 					return &bedrockruntime.InvokeModelOutput{
 						ContentType: aws.String("application/json"),
 						Body:        respBody,
@@ -146,12 +124,35 @@ var _ = Describe("BedrockClient", func() {
 				}
 			})
 
-			It("returns an error", func() {
-				Expect(err).To(MatchError(ContainSubstring("bedrock response did not contain 'completion' field")))
+			It("returns the expected response", func() {
+				Expect(response).To(Equal(expectedResponse))
 			})
 
-			It("returns an empty string", func() {
-				Expect(response).To(BeEmpty())
+			It("does not return an error", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+	})
+
+	Describe("NewBedrock", func() {
+		Context("with a supported model", func() {
+			It("returns a NovaLiteModel for amazon.nova-lite-v1:0", func() {
+				model, err := llm.NewBedrock(context.Background(), "amazon.nova-lite-v1:0", "us-east-1")
+				Expect(err).ToNot(HaveOccurred())
+				Expect(model).To(BeAssignableToTypeOf(&llm.NovaLiteModel{}))
+			})
+
+			It("returns a TitanLiteModel for amazon.titan-text-lite-v1", func() {
+				model, err := llm.NewBedrock(context.Background(), "amazon.titan-text-lite-v1", "us-east-1")
+				Expect(err).ToNot(HaveOccurred())
+				Expect(model).To(BeAssignableToTypeOf(&llm.TitanLiteModel{}))
+			})
+		})
+
+		Context("with an unsupported model", func() {
+			It("returns an error", func() {
+				_, err := llm.NewBedrock(context.Background(), "unsupported-model", "us-east-1")
+				Expect(err).To(MatchError("unsupported Bedrock model: unsupported-model"))
 			})
 		})
 	})

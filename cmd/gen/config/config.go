@@ -63,7 +63,7 @@ func Load(version, commit, date string) (*Config, []string, error) {
 		ollamaModel     = fs.String("ollama-model", "llama2", "Ollama model")
 		anthropicAPIKey = fs.String("anthropic-api-key", "", "Anthropic API key")
 		anthropicModel  = fs.String("anthropic-model", "claude-3-opus-20240229", "Anthropic model to use")
-		bedrockModel    = fs.String("bedrock-model", "anthropic.claude-3-sonnet-20240229-v1:0", "Bedrock model to use")
+		bedrockModel    = fs.String("bedrock-model", "amazon.nova-lite-v1:0", "Bedrock model to use")
 		bedrockRegion   = fs.String("bedrock-region", "us-east-1", "AWS region for Bedrock")
 		configPath      = fs.String("config", "", "path to config file")
 		showVersion     = fs.Bool("version", false, "show version")
