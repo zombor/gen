@@ -42,8 +42,9 @@ func (c *BedrockClient) GenerateCommand(ctx context.Context, logger *slog.Logger
 Prompt: %s`, os.Getenv("GOOS"), shell, prompt)
 	logger.Debug("bedrock prompt", "prompt", fullPrompt)
 
-	body, err := json.Marshal(map[string]string{
+	body, err := json.Marshal(map[string]any{
 		"prompt": fullPrompt,
+		"max_tokens_to_sample": 200,
 	})
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal prompt: %w", err)

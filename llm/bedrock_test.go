@@ -60,7 +60,7 @@ var _ = Describe("BedrockClient", func() {
 					Expect(params.ContentType).To(Equal(aws.String("application/json")))
 					Expect(params.Accept).To(Equal(aws.String("application/json")))
 
-					var reqBody map[string]string
+					var reqBody map[string]any
 					err := json.Unmarshal(params.Body, &reqBody)
 					Expect(err).ToNot(HaveOccurred())
 					Expect(reqBody["prompt"]).To(ContainSubstring(prompt))
