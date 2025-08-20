@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log"
 	"net/url"
@@ -38,13 +37,13 @@ func getShell() string {
 }
 
 func main() {
-	cfg, err := config.Load(version, commit, date)
+	cfg, args, err := config.Load(version, commit, date)
 	if err != nil {
 		fmt.Printf("Error loading config: %v\n", err)
 		os.Exit(1)
 	}
 
-	flag.Parse()
+	
 
 	var provider llm.LLMProvider
 
@@ -82,7 +81,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	prompt := strings.Join(flag.Args(), " ")
+	prompt := strings.Join(args, " ")
 
 	if prompt == "" {
 		fmt.Println("Usage: gen <prompt>")

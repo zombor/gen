@@ -50,7 +50,7 @@ type BedrockConfig struct {
 }
 
 // Load loads the configuration from a file, environment variables, and flags.
-func Load(version, commit, date string) (*Config, error) {
+func Load(version, commit, date string) (*Config, []string, error) {
 	fs := flag.NewFlagSet("gen", flag.ExitOnError)
 	var (
 		provider        = fs.String("provider", "gemini", "LLM provider to use (gemini, openai, ollama, anthropic, or bedrock)")
@@ -70,7 +70,7 @@ func Load(version, commit, date string) (*Config, error) {
 
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Default config path
@@ -91,7 +91,7 @@ func Load(version, commit, date string) (*Config, error) {
 		ff.WithConfigFileParser(ff.PlainParser),
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	cfg.Provider = *provider
@@ -111,5 +111,5 @@ func Load(version, commit, date string) (*Config, error) {
 		os.Exit(0)
 	}
 
-	return cfg, nil
+	return cfg, fs.Args(), nil
 }
