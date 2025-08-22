@@ -116,7 +116,7 @@ func (m Model) View() string {
 		return "Enter a prompt to generate a command:\n\n" + m.textarea.View() + "\n\n(ctrl+s to submit, ctrl+c to quit)"
 	}
 
-	return m.textarea.View() + "\n\n(ctrl+s to accept, ctrl+c to quit)"
+	return "Prompt:\n\n" + m.prompt + "\n\n" + m.textarea.View() + "\n\n(ctrl+s to accept, ctrl+c to quit)"
 }
 
 func (m Model) Accepted() bool {
