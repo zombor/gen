@@ -115,6 +115,11 @@ func Load(version, commit, date string) (*Config, []string, error) {
 	cfg.Debug = *debug
 	cfg.TUI = *tui
 
+	// When debug mode is enabled, force TUI off
+	if cfg.Debug {
+		cfg.TUI = false
+	}
+
 	if *showVersion {
 		fmt.Printf("gen version %s (commit: %s, built at: %s)\n", version, commit, date)
 		os.Exit(0)
