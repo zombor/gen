@@ -137,13 +137,13 @@ var _ = Describe("Bedrock Models", func() {
 	Describe("NewBedrock", func() {
 		Context("with a supported model", func() {
 			It("returns a NovaLiteModel for amazon.nova-lite-v1:0", func() {
-				model, err := llm.NewBedrock(context.Background(), "amazon.nova-lite-v1:0", "us-east-1")
+				model, err := llm.NewBedrock(context.Background(), "amazon.nova-lite-v1:0", "us-east-1", "")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(model).To(BeAssignableToTypeOf(&llm.NovaLiteModel{}))
 			})
 
 			It("returns a TitanLiteModel for amazon.titan-text-lite-v1", func() {
-				model, err := llm.NewBedrock(context.Background(), "amazon.titan-text-lite-v1", "us-east-1")
+				model, err := llm.NewBedrock(context.Background(), "amazon.titan-text-lite-v1", "us-east-1", "")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(model).To(BeAssignableToTypeOf(&llm.TitanLiteModel{}))
 			})
@@ -151,7 +151,7 @@ var _ = Describe("Bedrock Models", func() {
 
 		Context("with an unsupported model", func() {
 			It("returns an error", func() {
-				_, err := llm.NewBedrock(context.Background(), "unsupported-model", "us-east-1")
+				_, err := llm.NewBedrock(context.Background(), "unsupported-model", "us-east-1", "")
 				Expect(err).To(MatchError("unsupported Bedrock model: unsupported-model"))
 			})
 		})

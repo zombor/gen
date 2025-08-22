@@ -47,29 +47,31 @@ type AnthropicConfig struct {
 
 // BedrockConfig holds the configuration for the Bedrock provider.
 type BedrockConfig struct {
-	Model  string
-	Region string
+	Model            string
+	Region           string
+	InferenceProfile string
 }
 
 // Load loads the configuration from a file, environment variables, and flags.
 func Load(version, commit, date string) (*Config, []string, error) {
 	fs := flag.NewFlagSet("gen", flag.ExitOnError)
 	var (
-		provider        = fs.String("provider", "gemini", "LLM provider to use (gemini, openai, ollama, anthropic, or bedrock)")
-		geminiAPIKey    = fs.String("gemini-api-key", "", "Gemini API key")
-		geminiModel     = fs.String("gemini-model", "gemini-1.5-flash", "Gemini model to use")
-		openaiAPIKey    = fs.String("openai-api-key", "", "OpenAI API key")
-		openaiModel     = fs.String("openai-model", "gpt-4o", "OpenAI model to use")
-		ollamaHost      = fs.String("ollama-host", "http://localhost:11434", "Ollama host")
-		ollamaModel     = fs.String("ollama-model", "llama2", "Ollama model")
-		anthropicAPIKey = fs.String("anthropic-api-key", "", "Anthropic API key")
-		anthropicModel  = fs.String("anthropic-model", "claude-3-opus-20240229", "Anthropic model to use")
-		bedrockModel    = fs.String("bedrock-model", "amazon.nova-lite-v1:0", "Bedrock model to use")
-		bedrockRegion   = fs.String("bedrock-region", "us-east-1", "AWS region for Bedrock")
-		configPath      = fs.String("config", "", "path to config file")
-		showVersion     = fs.Bool("version", false, "show version")
-		debug           = fs.Bool("debug", false, "enable debug logging")
-		tui             = fs.Bool("tui", true, "enable TUI")
+		provider                = fs.String("provider", "gemini", "LLM provider to use (gemini, openai, ollama, anthropic, or bedrock)")
+		geminiAPIKey            = fs.String("gemini-api-key", "", "Gemini API key")
+		geminiModel             = fs.String("gemini-model", "gemini-1.5-flash", "Gemini model to use")
+		openaiAPIKey            = fs.String("openai-api-key", "", "OpenAI API key")
+		openaiModel             = fs.String("openai-model", "gpt-4o", "OpenAI model to use")
+		ollamaHost              = fs.String("ollama-host", "http://localhost:11434", "Ollama host")
+		ollamaModel             = fs.String("ollama-model", "llama2", "Ollama model")
+		anthropicAPIKey         = fs.String("anthropic-api-key", "", "Anthropic API key")
+		anthropicModel          = fs.String("anthropic-model", "claude-3-opus-20240229", "Anthropic model to use")
+		bedrockModel            = fs.String("bedrock-model", "amazon.nova-lite-v1:0", "Bedrock model to use")
+		bedrockRegion           = fs.String("bedrock-region", "us-east-1", "AWS region for Bedrock")
+		bedrockInferenceProfile = fs.String("bedrock-inference-profile", "", "Bedrock inference profile ID or ARN (optional)")
+		configPath              = fs.String("config", "", "path to config file")
+		showVersion             = fs.Bool("version", false, "show version")
+		debug                   = fs.Bool("debug", false, "enable debug logging")
+		tui                     = fs.Bool("tui", true, "enable TUI")
 	)
 
 	home, err := os.UserHomeDir()
@@ -109,6 +111,7 @@ func Load(version, commit, date string) (*Config, []string, error) {
 	cfg.Anthropic.Model = *anthropicModel
 	cfg.Bedrock.Model = *bedrockModel
 	cfg.Bedrock.Region = *bedrockRegion
+	cfg.Bedrock.InferenceProfile = *bedrockInferenceProfile
 	cfg.Debug = *debug
 	cfg.TUI = *tui
 

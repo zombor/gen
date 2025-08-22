@@ -79,7 +79,7 @@ func main() {
 		client := anthropic.NewClient(cfg.Anthropic.APIKey)
 		provider = &llm.AnthropicProvider{CreateMessages: client.CreateMessages, Model: cfg.Anthropic.Model}
 	case "bedrock":
-		bedrockClient, err := llm.NewBedrock(ctx, cfg.Bedrock.Model, cfg.Bedrock.Region)
+		bedrockClient, err := llm.NewBedrock(ctx, cfg.Bedrock.Model, cfg.Bedrock.Region, cfg.Bedrock.InferenceProfile)
 		if err != nil {
 			log.Fatal(err)
 		}
